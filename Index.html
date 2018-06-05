@@ -1,0 +1,208 @@
+<!doctype html>
+<html ng-app= "Solar Panel Calculation App" ng-cloak>
+	<head>
+		<title>Solar Panel Calculation App </title>
+		<script src= "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+		<script src = "app.js"></script>
+		
+		<!-- Angular Material style sheet -->
+		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css"/>
+
+		<!-- Boostrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+		<!-- Font Awesome CDN -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+	</head>
+
+	<body  ng-controller = "calculationController">
+		<div layout-align = "center none">
+			
+				<md-toolbar color = "primary">
+					<span>Calculate System Size</span>
+				</md-toolbar>
+				
+				<div class = "card">
+					<ul class="nav nav-tabs" role="tablist">
+	                    <li role="presentation" class="active"><a href="#customerInfo" aria-controls="customerInfo" role="tab" data-toggle="tab">Customer Info</a></li>
+	                    <li role="presentation"><a href="#calculator" aria-controls="calculator" role="tab" data-toggle="tab">Calculator</a></li>
+	                   
+               	 	</ul>
+				</div>
+			<br><br><br><br><br>
+			
+			<div class = "tab-content" >
+				<div flex = "75" class = "col-lg-4 col-lg-offset-4 tab-pane active" role="tabpanel" id="customerInfo">
+					<div class = "form-group" id = "exportthis">			
+						
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-user" style = "color:blue"></i>
+							</div>
+							<input class="form-control" type = "text" ng-model = "customer.name" placeholder = "Customer Name"/>
+						</div>
+						<br>
+					
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-home" style = "color:firebrick"></i>
+							</div>
+							<input class="form-control" type = "text" ng-model = "customer.address" placeholder = "Zip Code"/>
+						</div>
+						<br>
+						
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-money" style = "color:green"></i>
+							</div>
+							<input class="form-control" type = "text" ng-model = "customer.monthlyElectricBill" placeholder = "Monthly Electric Bill"/>
+						</div>
+						<br>
+					
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-plug" style = "color:deepskyblue"></i>
+							</div>
+							<input class="form-control" type = "text" ng-model = "customer.totalkWhPerMonth" placeholder = "Total kWh Per Month"/>
+						</div>	
+						
+					</div>
+					<a class="btn btn-danger" href="#" ng-click = "generatePDF()">
+	  						<i class="fa fa-file-pdf-o"></i> Create PDF</a>
+				</div>
+
+				<div flex = "75" role = "tabpanel" class = "col-lg-4 col-lg-offset-4 tab-pane" id = "calculator">
+					<div class = "form-group">
+								
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-lightbulb-o" style = "color:orange"></i>
+							</div>
+							<input class = "form-control" placeholder="Total kWh/Month" type = "text" ng-model = "data.TotalkWhPerMonth"/>
+							<md-tooltip md-direction="right">Total kWh/Month</md-tooltip>
+						</div>
+						<br>
+					
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-tint" style = "color:blue"></i>
+							</div>
+							<input class = "form-control" placeholder = "kWh/Year Water Heater" type = "text" ng-model = "data.kWhPerYearWaterHeater"/>
+							<md-tooltip md-direction="right">kWh/Year Water Heater</md-tooltip>
+						</div>
+						<br>
+					
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-usd" style = "color:green"></i>
+							</div>
+							<input class = "form-control" placeholder="Water Heater Price" type = "text" ng-model = "data.waterHeaterPrice"/>
+							<md-tooltip md-direction="right">Water Heater Price</md-tooltip>
+						</div>
+						<br>
+					
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-bolt" style = "color:gold"></i>
+							</div>
+							<input class = "form-control" placeholder="% Power Offset" type = "text" ng-model = "data.Percentage"/>
+							<md-tooltip md-direction="right">% Power Offset</md-tooltip>
+						</div>
+						<br>
+
+						<div class = "input-group">
+							<div class = "input-group-addon">
+								<i class = "fa fa-sun-o" style = "color:orangered"></i>
+							</div>
+							<input ata-toggle="tooltip" data-placement="left" title="Florida Sun Hours" class = "form-control" placeholder="Florida Sun Hours" type = "text" ng-model = "data.SunHours"/>
+							<md-tooltip md-direction="right">Maui Sun Hours</md-tooltip>
+						</div>
+						<br>
+						<a class="btn btn-danger" data-toggle="modal" data-target="#myModal" href="#" ng-click = "calculate(); calculatePricing()">
+	  						<i class="fa fa-calculator"></i> Calculate</a>
+						
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Modal -->
+			<div id="myModal" class="modal fade" role="dialog">
+			  <div class="modal-dialog modal-lg">
+
+			    <!-- Modal content-->
+			    <div class="modal-content">
+			      <div class="modal-header" style = "background-color:royalblue">
+			        <button type="button" class="close" data-dismiss="modal">&times;</button>
+			        <h4 class="modal-title text-center" style = "color:white" >Price Proposal</h4>
+			      </div>
+			      <br><br>
+			      <div class="modal-body">
+								
+					<table class = "table">
+						<thead style = "background-color: lightcyan">
+							<tr>
+								<th>Recommended System </th> 						
+								<th>TotalCost</th> 						
+								<th> Monthly Payment
+									
+								  	<select class = "bootstrap-select" ng-click = "calculatePricing()" ng-model="data.YearTermSelection" ng-change = "calculatePricing()">
+										<option ng-repeat="term in TermSelectionList">{{ term }}</option>
+								 	 </select>
+									
+								</th>						
+								<th>Average Monthly Savings </th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							<tr>
+								<td>{{AverageSize}}</td>
+								<td>{{ MainPrice2}}</td>
+								<td>{{MonthlyLowerPayment2}} - {{MonthlyUpperPayment2}}</td>
+								<td>{{AverageMonthlySavings}}</td>
+							</tr>
+						</tbody>
+					</table>		
+			      </div>
+
+			      <div class="modal-footer" >
+			        <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+			      </div>
+			    </div>
+
+			  </div>
+			</div>
+		</div>
+
+		<!-- Angular Material requires Angular.js Libraries -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+		
+		<script src= "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.33/pdfmake.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.33/pdfmake.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.33/pdfmake.min.js.map"></script>
+		<script src = "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.33/vfs_fonts.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		
+		<!-- Angular Material Library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+		<!-- Angular mdTable Libraries/CSS -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/md-data-table/1.8.0/md-data-table-templates.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/md-data-table/1.8.0/md-data-table.min.js"></script>
+		<link rel = "stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/md-data-table/1.8.0/md-data-table-style.css"></script>
+		<script defer, src="https://cdnjs.cloudflare.com/ajax/libs/angular-material-icons/0.5.0/angular-material-icons.min.js"></script>
+
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</body>
+
+</html>
